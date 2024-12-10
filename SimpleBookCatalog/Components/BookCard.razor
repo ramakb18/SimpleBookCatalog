@@ -1,0 +1,50 @@
+﻿@inject IBookRepository Repository
+@inject NavigationManager Navigation
+
+<div class="book-card">
+    <div class="book-card-body">
+        <h5>@Book.Title</h5>
+        By @Book.Author | @Book.PublicationDate?.ToString("MMMM dd, yyyy")
+    </div>
+    <div class="actions">
+        <a href="@($"/edit/{Book.Id}")"
+        class="btn btn-warning shadow-none">
+        Edit
+    </a>
+    <button @onclick="OpenConfirmDialog"
+        class="btn btn-danger shadow-none ms-3">
+        Delete
+    </button>
+    </div>
+</div>
+
+<ConfirmDialog Show="showConfrimDialog"
+                      OnCancel="CancelDelete"
+                      OnOk="DeleteBook" >
+    <h3>
+        Do you want to delete book @Book.Id ?
+    </h3>
+
+</ConfirmDialog>
+
+@code {
+    private bool showConfrimDialog;
+
+    [Parameter]
+    public required Book Book { get; set; }
+
+    private void OpenConfirmDialog()
+    {
+        showConfrimDialog = true;
+    }
+    private void CancelDelete()
+    {
+        showConfrimDialog = false;
+    }
+    private async Task DeleteBook()
+    {
+        await Repository.DeleteByIdAsync(Book.Id);
+        showConfrimDialog = false;
+        Navigation.NavigateTo("/");
+    }
+}
